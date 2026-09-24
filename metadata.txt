@@ -9,20 +9,22 @@
 
 
 [general]
-name=go2streetview
-qgisMinimumVersion=3.36
-qgisMaximumVersion=4.0
+name=go3streetview
+qgisMinimumVersion=3.2
+qgisMaximumVersion=5.0
 description=a plugin for Google Street View© interaction within QGIS
-version=10.2.0
-author=Enrico Ferreguti
-email=enricofer@gmail.com
+version=11.0.0
+author=César Benjamín (based on work of Enrico Ferreguti)
+email=cesarbenjamindotnet@gmail.com
 
 # end of mandatory metadata
 
 # Optional items:
 
 # Uncomment the following line and add your changelog entries:
-changelog =v8.4
+changelog =v11.0.0
+  Fork based on go2streetview with many fixes to upgrade compatibility with Qt6 and QGIS 4.x
+  v8.4
   snapshots issues fixes
   fix python 3.9 update - courtesy of https://github.com/denchat
   v8.5
@@ -38,13 +40,13 @@ changelog =v8.4
   Digitize on streetview window
   v10.1
   Add control to enable/disable digitize on streetview
-about = Go2streetview allows to get a Google Street View frame clicking and dragging the cursor on map to set location and direction of the desired view. Features: Automatic SRS conversion, Transparent proxying, View position on map, Take Snapshots of current view, Dockable Dialog Windows, Overlay info layer support, Map follows Streetview, Streetview service coverage, Digitize on Street View
+about = go3streetview allows to get a Google Street View frame clicking and dragging the cursor on map to set location and direction of the desired view. Features: Automatic SRS conversion, Transparent proxying, View position on map, Take Snapshots of current view, Dockable Dialog Windows, Overlay info layer support, Map follows Streetview, Streetview service coverage, Digitize on Street View
 # tags are comma separated with spaces allowed
 tags = google, street, view, streetview, bing, snapshot, nominating, overlay, markers
 
-homepage=https://github.com/enricofer/go2streetview
-tracker=https://github.com/enricofer/go2streetview/issues
-repository=https://github.com/enricofer/go2streetview
+homepage=https://github.com/veogeo/go3streetview
+tracker=https://github.com/veogeo/go3streetview/issues
+repository=https://github.com/veogeo/go3streetview
 icon=icoStreetview.png
 # experimental flag
 experimental=False

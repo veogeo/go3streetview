@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 /***************************************************************************
- go2streetview
+ go3streetview
                                  A QGIS plugin
  click to open Google Street View
                              -------------------
@@ -30,6 +30,6 @@ import sys
 
 
 def classFactory(iface):
-    # load go2streetview class from file go2streetview
-    from .go2streetview import go2streetview
-    return go2streetview(iface)
+    # load go3streetview class from file go3streetview
+    from .go3streetview import go3streetview
+    return go3streetview(iface)

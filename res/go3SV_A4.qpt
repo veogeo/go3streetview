@@ -83,7 +83,7 @@
   <strokeColor green="0" red="0" blue="0" alpha="255"/>
   <textColor green="0" red="0" blue="0" alpha="255"/>
  </LayoutItem>
- <LayoutItem type="65641" uuid="{376a066e-ba7c-482a-8e0f-cc945375e7c0}" marginY="1" referencePoint="0" labelText="POWERED BY QGIS/GO2STREETVIEW" halign="2" size="185,6.20166,mm" outlineWidthM="1,mm" visibility="1" marginX="2" frameJoinStyle="miter" htmlState="0" id="" itemRotation="0" positionLock="false" templateUuid="{376a066e-ba7c-482a-8e0f-cc945375e7c0}" opacity="1" zValue="8" background="true" positionOnPage="12.5,284.421,mm" position="12.5,284.421,mm" blendMode="0" excludeFromExports="0" valign="32" frame="true" groupUuid="">
+ <LayoutItem type="65641" uuid="{376a066e-ba7c-482a-8e0f-cc945375e7c0}" marginY="1" referencePoint="0" labelText="POWERED BY QGIS/go3streetview" halign="2" size="185,6.20166,mm" outlineWidthM="1,mm" visibility="1" marginX="2" frameJoinStyle="miter" htmlState="0" id="" itemRotation="0" positionLock="false" templateUuid="{376a066e-ba7c-482a-8e0f-cc945375e7c0}" opacity="1" zValue="8" background="true" positionOnPage="12.5,284.421,mm" position="12.5,284.421,mm" blendMode="0" excludeFromExports="0" valign="32" frame="true" groupUuid="">
   <FrameColor green="225" red="225" blue="225" alpha="255"/>
   <BackgroundColor green="225" red="225" blue="225" alpha="255"/>
   <LayoutObject>
@@ -99,7 +99,7 @@
   <LabelFont description="Arial,10,-1,5,75,0,0,0,0,0" style=""/>
   <FontColor green="0" red="0" blue="0"/>
  </LayoutItem>
- <LayoutItem type="65640" uuid="{32c2a3bb-b9a4-4f5f-8728-1c9c9bcf8383}" northOffset="0" mapUuid="" referencePoint="0" northMode="0" size="20,15,mm" outlineWidthM="0.3,mm" visibility="1" svgFillColor="255,255,255,255" frameJoinStyle="miter" resizeMode="0" id="CAMERA" svgBorderColor="0,0,0,255" itemRotation="0" positionLock="false" file="Z:/dev/go2streetview/res/camera.svg" templateUuid="{32c2a3bb-b9a4-4f5f-8728-1c9c9bcf8383}" opacity="1" anchorPoint="4" zValue="7" pictureWidth="14.9085" background="false" positionOnPage="95,184.271,mm" position="95,184.271,mm" blendMode="0" excludeFromExports="0" svgBorderWidth="0.2" frame="false" groupUuid="" pictureRotation="0" pictureHeight="15">
+ <LayoutItem type="65640" uuid="{32c2a3bb-b9a4-4f5f-8728-1c9c9bcf8383}" northOffset="0" mapUuid="" referencePoint="0" northMode="0" size="20,15,mm" outlineWidthM="0.3,mm" visibility="1" svgFillColor="255,255,255,255" frameJoinStyle="miter" resizeMode="0" id="CAMERA" svgBorderColor="0,0,0,255" itemRotation="0" positionLock="false" file="Z:/dev/go3streetview/res/camera.svg" templateUuid="{32c2a3bb-b9a4-4f5f-8728-1c9c9bcf8383}" opacity="1" anchorPoint="4" zValue="7" pictureWidth="14.9085" background="false" positionOnPage="95,184.271,mm" position="95,184.271,mm" blendMode="0" excludeFromExports="0" svgBorderWidth="0.2" frame="false" groupUuid="" pictureRotation="0" pictureHeight="15">
   <FrameColor green="0" red="0" blue="0" alpha="255"/>
   <BackgroundColor green="255" red="255" blue="255" alpha="255"/>
   <LayoutObject>
@@ -135,7 +135,7 @@
   <LabelFont description="Arial,10,-1,5,50,0,0,0,0,0" style=""/>
   <FontColor green="0" red="0" blue="0"/>
  </LayoutItem>
- <LayoutItem type="65640" uuid="{68982324-9753-454f-af7f-64e43de5fda4}" northOffset="0" mapUuid="" referencePoint="0" northMode="0" size="52,32.8,mm" outlineWidthM="1,mm" visibility="1" svgFillColor="255,255,255,255" frameJoinStyle="miter" resizeMode="0" id="SMALL" svgBorderColor="0,0,0,255" itemRotation="0" positionLock="false" file="Z:\dev\go2streetview\tmp\tmpBE.png" templateUuid="{68982324-9753-454f-af7f-64e43de5fda4}" opacity="1" anchorPoint="3" zValue="5" pictureWidth="32.6" background="true" positionOnPage="14.1996,13.9212,mm" position="66.1996,13.9212,mm" blendMode="0" excludeFromExports="0" svgBorderWidth="0.2" frame="false" groupUuid="" pictureRotation="0" pictureHeight="32.8">
+ <LayoutItem type="65640" uuid="{68982324-9753-454f-af7f-64e43de5fda4}" northOffset="0" mapUuid="" referencePoint="0" northMode="0" size="52,32.8,mm" outlineWidthM="1,mm" visibility="1" svgFillColor="255,255,255,255" frameJoinStyle="miter" resizeMode="0" id="SMALL" svgBorderColor="0,0,0,255" itemRotation="0" positionLock="false" file="Z:\dev\go3streetview\tmp\tmpBE.png" templateUuid="{68982324-9753-454f-af7f-64e43de5fda4}" opacity="1" anchorPoint="3" zValue="5" pictureWidth="32.6" background="true" positionOnPage="14.1996,13.9212,mm" position="66.1996,13.9212,mm" blendMode="0" excludeFromExports="0" svgBorderWidth="0.2" frame="false" groupUuid="" pictureRotation="0" pictureHeight="32.8">
   <FrameColor green="225" red="225" blue="225" alpha="255"/>
   <BackgroundColor green="225" red="225" blue="225" alpha="255"/>
   <LayoutObject>
@@ -171,7 +171,7 @@
   <LabelFont description="Arial,48,-1,5,50,0,0,0,0,0" style=""/>
   <FontColor green="0" red="0" blue="255"/>
  </LayoutItem>
- <LayoutItem type="65640" uuid="{f2c6fa59-b58c-4be8-bd22-3bd7f717f517}" northOffset="0" mapUuid="" referencePoint="0" northMode="0" size="127.355,79.4942,mm" outlineWidthM="1,mm" visibility="1" svgFillColor="255,255,255,255" frameJoinStyle="miter" resizeMode="0" id="LARGE" svgBorderColor="0,0,0,255" itemRotation="0" positionLock="false" file="Z:/dev/go2streetview/tmp/tmpSV.png" templateUuid="{f2c6fa59-b58c-4be8-bd22-3bd7f717f517}" opacity="1" anchorPoint="5" zValue="3" pictureWidth="79.0095" background="true" positionOnPage="68.3769,13.8279,mm" position="68.3769,13.8279,mm" blendMode="0" excludeFromExports="0" svgBorderWidth="0.2" frame="false" groupUuid="" pictureRotation="0" pictureHeight="79.4942">
+ <LayoutItem type="65640" uuid="{f2c6fa59-b58c-4be8-bd22-3bd7f717f517}" northOffset="0" mapUuid="" referencePoint="0" northMode="0" size="127.355,79.4942,mm" outlineWidthM="1,mm" visibility="1" svgFillColor="255,255,255,255" frameJoinStyle="miter" resizeMode="0" id="LARGE" svgBorderColor="0,0,0,255" itemRotation="0" positionLock="false" file="Z:/dev/go3streetview/tmp/tmpSV.png" templateUuid="{f2c6fa59-b58c-4be8-bd22-3bd7f717f517}" opacity="1" anchorPoint="5" zValue="3" pictureWidth="79.0095" background="true" positionOnPage="68.3769,13.8279,mm" position="68.3769,13.8279,mm" blendMode="0" excludeFromExports="0" svgBorderWidth="0.2" frame="false" groupUuid="" pictureRotation="0" pictureHeight="79.4942">
   <FrameColor green="225" red="225" blue="225" alpha="255"/>
   <BackgroundColor green="225" red="225" blue="225" alpha="255"/>
   <LayoutObject>

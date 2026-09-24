@@ -20,7 +20,7 @@
 
 from qgis.PyQt import QtCore, QtWidgets, QtGui
 from qgis import core, utils, gui
-from .go2streetviewDialog import snapshotNotesDialog
+from .go3streetviewDialog import snapshotNotesDialog
 
 try:
     from . import resources_rc_qt6 as resources_rc
@@ -115,7 +115,7 @@ class snapShot:
 
         core.QgsMessageLog.logMessage(
             self.file_name,
-            tag="go2streetview",
+            tag="go3streetview",
             level=core.Qgis.Info
         )
 

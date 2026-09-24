@@ -1,4 +1,4 @@
-<Composer title="go2streetview" visible="1">
+<Composer title="go3streetview" visible="1">
  <Composition gridVisible="0" printResolution="300" paperWidth="210" snapGridOffsetX="0" guidesVisible="1" snapGridResolution="0.5" snapGridOffsetY="0" alignmentSnap="1" snapping="0" snapTolerancePixels="5" numPages="1" paperHeight="297" smartGuides="1" printAsRaster="0" generateWorldFile="0">
   <symbol alpha="1" type="fill" name="">
    <layer pass="0" class="SimpleFill" locked="0">
@@ -15,14 +15,14 @@
     <prop k="style" v="solid"/>
    </layer>
   </symbol>
-  <ComposerPicture resizeMode="0" pictureRotation="0" pictureWidth="46.4821" file="../../dev/go2streetview/tmp/tmpBE.png" pictureHeight="25.4836" mapId="-1" anchorPoint="1">
+  <ComposerPicture resizeMode="0" pictureRotation="0" pictureWidth="46.4821" file="../../dev/go3streetview/tmp/tmpBE.png" pictureHeight="25.4836" mapId="-1" anchorPoint="1">
    <ComposerItem pagey="102.214" page="1" id="BE" lastValidViewScaleFactor="-1" positionMode="0" positionLock="false" x="145.362" y="102.214" visibility="1" zValue="4" background="false" transparency="0" frameJoinStyle="miter" blendMode="0" width="46.4821" outlineWidth="0.3" excludeFromExports="0" uuid="{329d0640-8e40-4476-a52a-25acdd6d0d44}" height="31.4668" itemRotation="0" frame="false" pagex="145.362">
     <FrameColor alpha="255" red="0" blue="0" green="0"/>
     <BackgroundColor alpha="255" red="255" blue="255" green="255"/>
     <dataDefinedSource expr="" field="" active="false" useExpr="true"/>
    </ComposerItem>
   </ComposerPicture>
-  <ComposerPicture resizeMode="0" pictureRotation="0" pictureWidth="150.607" file="../../dev/go2streetview/tmp/tmpSV.png" pictureHeight="82.5698" mapId="-1" anchorPoint="1">
+  <ComposerPicture resizeMode="0" pictureRotation="0" pictureWidth="150.607" file="../../dev/go3streetview/tmp/tmpSV.png" pictureHeight="82.5698" mapId="-1" anchorPoint="1">
    <ComposerItem pagey="12.5" page="1" id="SV" lastValidViewScaleFactor="-1" positionMode="0" positionLock="false" x="12.5" y="12.5" visibility="1" zValue="2" background="false" transparency="0" frameJoinStyle="miter" blendMode="0" width="185" outlineWidth="0.3" excludeFromExports="0" uuid="{a644220f-878a-48c6-9de2-69133cfb3f9d}" height="82.5698" itemRotation="0" frame="false" pagex="12.5">
     <FrameColor alpha="255" red="0" blue="0" green="0"/>
     <BackgroundColor alpha="255" red="255" blue="255" green="255"/>

@@ -1,8 +1,13 @@
-# go2streetview
+# go3streetview
 
-a QGIS plugin for google Streetview© interaction
+a QGIS plugin for google Streetview© interaction, based on go2streetview with many fixes to upgrade compatibility with Qt6 and QGIS 4.x
 
 ## Changelog
+
+### v11.0.0
+
+1. Many fixes to upgrade compatibility with Qt6 and QGIS 4.x
+
 
 #### v10.1
 1. Enable/disable digitize on Streetview

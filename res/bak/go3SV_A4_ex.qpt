@@ -98,7 +98,7 @@
     <BackgroundColor alpha="255" red="255" blue="255" green="255"/>
    </ComposerItem>
   </ComposerScaleBar>
-  <ComposerLabel valign="32" marginX="2" marginY="1" labelText="POWERED BY QGIS/GO2STREETVIEW" htmlState="0" halign="2">
+  <ComposerLabel valign="32" marginX="2" marginY="1" labelText="POWERED BY QGIS/go3streetview" htmlState="0" halign="2">
    <LabelFont description="Arial,10,-1,5,75,0,0,0,0,0" style=""/>
    <FontColor red="0" blue="0" green="0"/>
    <ComposerItem pagey="284.421" page="1" id="" lastValidViewScaleFactor="-1" positionMode="0" positionLock="false" x="12.5" y="284.421" visibility="1" zValue="8" background="true" transparency="0" frameJoinStyle="miter" blendMode="0" width="185" outlineWidth="1" excludeFromExports="0" uuid="{49727f8d-24f0-4430-93eb-a989cbaf1d27}" height="6.20166" itemRotation="0" frame="true" pagex="12.5">
@@ -106,7 +106,7 @@
     <BackgroundColor alpha="255" red="225" blue="225" green="225"/>
    </ComposerItem>
   </ComposerLabel>
-  <ComposerPicture resizeMode="0" pictureRotation="0" pictureWidth="15" file="Z:/dev/go2streetview/res/camera.svg" pictureHeight="15" mapId="-1" anchorPoint="4">
+  <ComposerPicture resizeMode="0" pictureRotation="0" pictureWidth="15" file="Z:/dev/go3streetview/res/camera.svg" pictureHeight="15" mapId="-1" anchorPoint="4">
    <ComposerItem pagey="184.271" page="1" id="CAMERA" lastValidViewScaleFactor="-1" positionMode="0" positionLock="false" x="95" y="184.271" visibility="1" zValue="7" background="false" transparency="0" frameJoinStyle="miter" blendMode="0" width="20" outlineWidth="0.3" excludeFromExports="0" uuid="{95875908-d45a-438a-9749-62d8f11d922c}" height="15" itemRotation="0" frame="false" pagex="95">
     <FrameColor alpha="255" red="0" blue="0" green="0"/>
     <BackgroundColor alpha="255" red="255" blue="255" green="255"/>
@@ -121,7 +121,7 @@
     <BackgroundColor alpha="255" red="255" blue="255" green="255"/>
    </ComposerItem>
   </ComposerLabel>
-  <ComposerPicture resizeMode="0" pictureRotation="0" pictureWidth="47.2133" file="Z:\dev\go2streetview\tmp\tmpBE.png" pictureHeight="32.8" mapId="-1" anchorPoint="3">
+  <ComposerPicture resizeMode="0" pictureRotation="0" pictureWidth="47.2133" file="Z:\dev\go3streetview\tmp\tmpBE.png" pictureHeight="32.8" mapId="-1" anchorPoint="3">
    <ComposerItem pagey="13.9212" page="1" id="SMALL" lastValidViewScaleFactor="-1" positionMode="2" positionLock="false" x="14.1996" y="13.9212" visibility="1" zValue="5" background="true" transparency="0" frameJoinStyle="miter" blendMode="0" width="52" outlineWidth="1" excludeFromExports="0" uuid="{46a7025c-ac01-4248-a113-dff120750fbd}" height="32.8" itemRotation="0" frame="false" pagex="14.1996">
     <FrameColor alpha="255" red="225" blue="225" green="225"/>
     <BackgroundColor alpha="255" red="225" blue="225" green="225"/>
@@ -136,7 +136,7 @@
     <BackgroundColor alpha="255" red="255" blue="255" green="255"/>
    </ComposerItem>
   </ComposerLabel>
-  <ComposerPicture resizeMode="0" pictureRotation="0" pictureWidth="114.426" file="Z:/dev/go2streetview/tmp/tmpSV.png" pictureHeight="79.4942" mapId="-1" anchorPoint="5">
+  <ComposerPicture resizeMode="0" pictureRotation="0" pictureWidth="114.426" file="Z:/dev/go3streetview/tmp/tmpSV.png" pictureHeight="79.4942" mapId="-1" anchorPoint="5">
    <ComposerItem pagey="13.8279" page="1" id="LARGE" lastValidViewScaleFactor="-1" positionMode="0" positionLock="false" x="68.3769" y="13.8279" visibility="1" zValue="3" background="true" transparency="0" frameJoinStyle="miter" blendMode="0" width="127.355" outlineWidth="1" excludeFromExports="0" uuid="{5c5038e3-f08d-4c04-b17e-a99d3d1587f9}" height="79.4942" itemRotation="0" frame="false" pagex="68.3769">
     <FrameColor alpha="255" red="225" blue="225" green="225"/>
     <BackgroundColor alpha="255" red="225" blue="225" green="225"/>

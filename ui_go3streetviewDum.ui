@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>go2streetviewDum</class>
- <widget class="QWidget" name="go2streetviewDum">
+ <class>go3streetviewDum</class>
+ <widget class="QWidget" name="go3streetviewDum">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -17,7 +17,7 @@
    </sizepolicy>
   </property>
   <property name="windowTitle">
-   <string>go2streetview</string>
+   <string>go3streetview</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -38,7 +38,7 @@
       <string/>
      </property>
      <property name="pixmap">
-      <pixmap resource="resources.qrc">:/plugins/go2streetview/res/icoStreetview.png</pixmap>
+      <pixmap resource="resources.qrc">:/plugins/go3streetview/res/icoStreetview.png</pixmap>
      </property>
      <property name="scaledContents">
       <bool>false</bool>

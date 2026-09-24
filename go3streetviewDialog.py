@@ -1,6 +1,6 @@
 """  
 /***************************************************************************
-go2streetview
+go3streetview
                                  A QGIS plugin
 
                              -------------------
@@ -34,16 +34,16 @@ except ImportError:
     from . import resources_rc_qt5 as resources_rc
 
 MAIN_DIALOG_CLASS, _ = uic.loadUiType(os.path.join(
-    os.path.dirname(__file__), 'ui_go2streetview.ui'))
+    os.path.dirname(__file__), 'ui_go3streetview.ui'))
 
 NOTES_DIALOG_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'ui_snapshotNotes.ui'))
 
 LICENSE_DIALOG_CLASS, _ = uic.loadUiType(os.path.join(
-    os.path.dirname(__file__), 'ui_go2streetviewLicense.ui'))
+    os.path.dirname(__file__), 'ui_go3streetviewLicense.ui'))
 
 DUM_DIALOG_CLASS, _ = uic.loadUiType(os.path.join(
-    os.path.dirname(__file__), 'ui_go2streetviewDum.ui'))
+    os.path.dirname(__file__), 'ui_go3streetviewDum.ui'))
 
 INFOBOX_DIALOG_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'ui_infoBox.ui'))
@@ -54,7 +54,7 @@ def qt_checkstate(state):
     return getattr(QtCore.Qt, state)      # Qt5
 
 # create the view dialog
-class go2streetviewDialog(QtWidgets.QDockWidget, MAIN_DIALOG_CLASS):
+class go3streetviewDialog(QtWidgets.QDockWidget, MAIN_DIALOG_CLASS):
 
     focus_in = QtCore.pyqtSignal(int, name='focusIn')
     closed_ev = QtCore.pyqtSignal(int, name='closed')

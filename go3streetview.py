@@ -1,6 +1,6 @@
 """
 /***************************************************************************
- go2streetview
+ go3streetview
                                  A QGIS plugin
  Click to open Google Street View
                               -------------------
@@ -39,7 +39,7 @@ except ImportError:
 from qgis import core, utils, gui
 from qgis.utils import iface, qgsfunction, plugins
 from string import digits
-from .go2streetviewDialog import go2streetviewDialog, dumWidget, snapshotLicenseDialog, infobox
+from .go3streetviewDialog import go3streetviewDialog, dumWidget, snapshotLicenseDialog, infobox
 from .snapshot import snapShot
 from .transformgeom import transformGeometry
 try:
@@ -107,7 +107,7 @@ def qt_window_flag(flag):
     return getattr(QtCore.Qt, flag)       # Qt5
 
 
-@qgsfunction(args=0, group='go2streetview', usesgeometry=True)
+@qgsfunction(args=0, group='go3streetview', usesgeometry=True)
 def get_streetview_pov(value1, feature, parent):
     """
         Returns a string containing the WKT definition of the linestring vector pointing from the nearest available streetview panorama to the centroid of the current feature geometry. The function can be used to define a custom symbology representing the point of view of a streetview panorama. To be used together with get_streetview_url function
@@ -120,7 +120,7 @@ def get_streetview_pov(value1, feature, parent):
              get_streetview_pov() <br>
         </p>
     """
-    sv = plugins['go2streetview']
+    sv = plugins['go3streetview']
     toP = feature.geometry().centroid().asPoint()
     toP_wgs84 = sv.transformToWGS84(toP)
     # try:
@@ -133,7 +133,7 @@ def get_streetview_pov(value1, feature, parent):
     #     return "no imagery for location: " + str(e)
 
 
-@qgsfunction(args='auto', group='go2streetview', usesgeometry=True)
+@qgsfunction(args='auto', group='go3streetview', usesgeometry=True)
 def get_streetview_url(value1, feature, parent):
     """
         Returns a string containing the URL of the closest available streetview panorama looking at the centroid of the current feature geometry. Useful for inserting a streetview panorama in composition layout.
@@ -155,7 +155,7 @@ def get_streetview_url(value1, feature, parent):
              get_streetview_url(1.5) <i>gets an image of 426x640 px</i><br>
         </p>
     """
-    sv = plugins['go2streetview']
+    sv = plugins['go3streetview']
     toP = sv.transformToWGS84(feature.geometry().centroid().asPoint())
     print(0, toP.x(), toP.y())
     h = 640.0
@@ -187,13 +187,13 @@ def heading(fromP, toP):
     return (result + 360) % 360
 
 
-class go2streetview(gui.QgsMapTool):
+class go3streetview(gui.QgsMapTool):
 
     def __init__(self, iface):
 
         # Save reference to the QGIS interface
         self._webengine_ready = False
-        self.view = go2streetviewDialog()
+        self.view = go3streetviewDialog()
         self.iface = iface
         # reference to the canvas
         self.canvas = self.iface.mapCanvas()
@@ -207,7 +207,7 @@ class go2streetview(gui.QgsMapTool):
         locale_path = os.path.join(
             self.plugin_dir,
             'i18n',
-            'go2streetview_{}.qm'.format(locale))
+            'go3streetview_{}.qm'.format(locale))
 
         if os.path.exists(locale_path):
             self.translator = QTranslator()
@@ -236,27 +236,27 @@ class go2streetview(gui.QgsMapTool):
         :rtype: QString
         """
         # noinspection PyTypeChecker,PyArgumentList,PyCallByClass
-        return QCoreApplication.translate('go2streetview', message)
+        return QCoreApplication.translate('go3streetview', message)
 
     def initGui(self):
         # Create actions that will start plugin configuration
         self.StreetviewAction = QtWidgets.QAction(QtGui.QIcon(os.path.join(os.path.dirname(__file__), 'res', 'icoStreetview.png')),
                                                   self.tr("Click to open Google Street View"), self.iface.mainWindow())
-        # self.StreetviewAction = QtWidgets.QAction(QtGui.QIcon(":/plugins/go2streetview/res/icoStreetview.png"),
+        # self.StreetviewAction = QtWidgets.QAction(QtGui.QIcon(":/plugins/go3streetview/res/icoStreetview.png"),
         #     "Click to open Google Street View", self.iface.mainWindow())
         self.StreetviewAction.triggered.connect(self.StreetviewRun)
         # Add toolbar button and menu item
         self.iface.addToolBarIcon(self.StreetviewAction)
-        self.iface.addPluginToWebMenu(self.tr("&go2streetview"), self.StreetviewAction)
+        self.iface.addPluginToWebMenu(self.tr("&go3streetview"), self.StreetviewAction)
         self.dirPath = os.path.dirname(os.path.abspath(__file__))
         self.actualPOV = {}
         self.dumView = dumWidget()
         self.dumView.enter.connect(self.clickOn)
         self.dumView.iconRif.setPixmap(QtGui.QPixmap(os.path.join(os.path.dirname(__file__), 'res', 'icoStreetview.png')))
-        # self.dumView.iconRif.setPixmap(QtGui.QPixmap(":/plugins/go2streetview/res/icoStreetview.png"))
-        self.apdockwidget = QtWidgets.QDockWidget(self.tr("go2streetview"), self.iface.mainWindow())
+        # self.dumView.iconRif.setPixmap(QtGui.QPixmap(":/plugins/go3streetview/res/icoStreetview.png"))
+        self.apdockwidget = QtWidgets.QDockWidget(self.tr("go3streetview"), self.iface.mainWindow())
         # self.apdockwidget.
-        self.apdockwidget.setObjectName("go2streetview")
+        self.apdockwidget.setObjectName("go3streetview")
         self.apdockwidget.setWidget(self.dumView)
         self.iface.addDockWidget(QtCore.Qt.DockWidgetArea.LeftDockWidgetArea, self.apdockwidget)
         self.apdockwidget.update()
@@ -529,7 +529,7 @@ class go2streetview(gui.QgsMapTool):
 
         # Load template
         myLayout = core.QgsLayout(core.QgsProject.instance())
-        myFile = os.path.join(os.path.dirname(__file__), 'res', 'go2SV_A4.qpt')
+        myFile = os.path.join(os.path.dirname(__file__), 'res', 'go3SV_A4.qpt')
         myTemplateFile = open(myFile, 'rt')
         myTemplateContent = myTemplateFile.read()
         myTemplateFile.close()
@@ -665,7 +665,7 @@ class go2streetview(gui.QgsMapTool):
             self.aperture.reset()
         except:
             pass
-        self.iface.removePluginMenu("&go2streetview", self.StreetviewAction)
+        self.iface.removePluginMenu("&go3streetview", self.StreetviewAction)
         self.iface.removeToolBarIcon(self.StreetviewAction)
         self.iface.removeDockWidget(self.apdockwidget)
 
@@ -849,7 +849,7 @@ class go2streetview(gui.QgsMapTool):
 
     def refreshWidget(self, new_lon, new_lat):
         if self.actualPOV['lat'] != 0.0:
-            self.gswDialogUrl = os.path.join(pathlib.Path(self.dirPath).as_uri(), 'res', 'g2sv.html?lat=' + str(
+            self.gswDialogUrl = os.path.join(pathlib.Path(self.dirPath).as_uri(), 'res', 'g3sv.html?lat=' + str(
                 new_lat) + "&long=" + str(new_lon) + "&width=" + str(
                 self.viewWidth) + "&height=" + str(self.viewHeight) + "&heading=" + str(
                 self.heading) + "&APIkey=" + self.APIkey)
@@ -894,7 +894,7 @@ class go2streetview(gui.QgsMapTool):
         webbrowser.open_new("https://www.google.com/maps/@%s,%s,150m/data=!3m1!1e3" % (str(p['lat']), str(p['lon'])))
 
     def openExternalUrl(self, url):
-        core.QgsMessageLog.logMessage(url.toString(), tag="go2streetview", level=core.Qgis.Info)
+        core.QgsMessageLog.logMessage(url.toString(), tag="go3streetview", level=core.Qgis.Info)
         webbrowser.open_new(url.toString())
 
     def openInBrowserSV(self):
@@ -998,19 +998,19 @@ class go2streetview(gui.QgsMapTool):
         self.viewHeight = self.view.size().height()
         self.viewWidth = self.view.size().width()
 
-        self.gswDialogUrl = os.path.join(pathlib.Path(self.dirPath).as_uri(), 'res', 'g2sv.html?lat=' + str(
+        self.gswDialogUrl = os.path.join(pathlib.Path(self.dirPath).as_uri(), 'res', 'g3sv.html?lat=' + str(
             self.pointWgs84.y()) + "&long=" + str(self.pointWgs84.x()) + "&width=" + str(
             self.viewWidth) + "&height=" + str(self.viewHeight) + "&heading=" + str(
             self.heading) + "&APIkey=" + self.APIkey)
 
         self.headingGM = math.trunc(round(self.heading / 90) * 90)
-        self.bbeUrl = os.path.join(pathlib.Path(self.dirPath).as_uri(), "res", "g2gm.html?lat=" + str(self.pointWgs84.y()) + "&long=" + str(
+        self.bbeUrl = os.path.join(pathlib.Path(self.dirPath).as_uri(), "res", "g3gm.html?lat=" + str(self.pointWgs84.y()) + "&long=" + str(
             self.pointWgs84.x()) + "&width=" + str(self.viewWidth) + "&height=" + str(
             self.viewHeight) + "&zoom=19&heading=" + str(self.headingGM) + "&APIkey=" + self.APIkey)
 
         gswTitle = "Google Street View"
-        core.QgsMessageLog.logMessage(QtCore.QUrl(self.gswDialogUrl).toString(), tag="go2streetview", level=core.Qgis.Info)
-        core.QgsMessageLog.logMessage(self.bbeUrl, tag="go2streetview", level=core.Qgis.Info)
+        core.QgsMessageLog.logMessage(QtCore.QUrl(self.gswDialogUrl).toString(), tag="go3streetview", level=core.Qgis.Info)
+        core.QgsMessageLog.logMessage(self.bbeUrl, tag="go3streetview", level=core.Qgis.Info)
         self.httpConnecting = True
         self.view.SV.setUrl(QtCore.QUrl(QtCore.QDir.fromNativeSeparators(self.gswDialogUrl)))
         self.view.BE.setUrl(QtCore.QUrl(QtCore.QDir.fromNativeSeparators(self.bbeUrl)))
@@ -1097,10 +1097,10 @@ class go2streetview(gui.QgsMapTool):
                 newFeat.setAttributes([self.infoBoxManager.getInfoField(feat), self.infoBoxManager.getHtml(feat), self.infoBoxManager.getIconPath(feat), self.infoBoxManager.getFeatId(feat)])
                 bufferLayer.addFeature(newFeat)
             else:
-                core.QgsMessageLog.logMessage("fetched too much features..... 200 max", tag="go2streetview", level=core.Qgis.Warning)
+                core.QgsMessageLog.logMessage("fetched too much features..... 200 max", tag="go3streetview", level=core.Qgis.Warning)
                 break
         bufferLayer.commitChanges()
-        core.QgsMessageLog.logMessage("markers context rebuilt", tag="go2streetview", level=core.Qgis.Info)
+        core.QgsMessageLog.logMessage("markers context rebuilt", tag="go3streetview", level=core.Qgis.Info)
         # StreetView markers
         tmpfile = os.path.join(self.dirPath, "tmp", "tmp_markers.geojson")
         # core.QgsVectorFileWriter.writeAsVectorFormat(bufferLayer, tmpfile, "UTF8", toWGS84, "GeoJSON")
@@ -1128,7 +1128,7 @@ class go2streetview(gui.QgsMapTool):
         js = """this.readJson() """
         self.view.SV.page().runJavaScript(js)
         self.view.BE.page().runJavaScript(js)
-        core.QgsMessageLog.logMessage("webview markers refreshed", tag="go2streetview", level=core.Qgis.Info)
+        core.QgsMessageLog.logMessage("webview markers refreshed", tag="go3streetview", level=core.Qgis.Info)
 
     def lineBuffer(self, p, polygons=None):
         dBuffer = self.infoBoxManager.getDistanceBuffer()
@@ -1181,12 +1181,12 @@ class go2streetview(gui.QgsMapTool):
                         bufferLayer.addFeature(newFeat)
                     fetched = fetched + len(newGeom.asPolyline())
                 else:
-                    core.QgsMessageLog.logMessage("Null geometry!", tag="go2streetview", level=core.Qgis.Warning)
+                    core.QgsMessageLog.logMessage("Null geometry!", tag="go3streetview", level=core.Qgis.Warning)
             else:
-                core.QgsMessageLog.logMessage("fetched too much features..... 200 max", tag="go2streetview", level=core.Qgis.Warning)
+                core.QgsMessageLog.logMessage("fetched too much features..... 200 max", tag="go3streetview", level=core.Qgis.Warning)
                 break
         bufferLayer.commitChanges()
-        core.QgsMessageLog.logMessage("line context rebuilt: %s features" % bufferLayer.featureCount(), tag="go2streetview", level=core.Qgis.Info)
+        core.QgsMessageLog.logMessage("line context rebuilt: %s features" % bufferLayer.featureCount(), tag="go3streetview", level=core.Qgis.Info)
         # StreetView lines
         tmpfile = os.path.join(self.dirPath, "tmp", "tmp_lines.geojson")
         # core.QgsVectorFileWriter.writeAsVectorFormat(bufferLayer, tmpfile, "UTF8", toWGS84, "GeoJSON")
@@ -1212,7 +1212,7 @@ class go2streetview(gui.QgsMapTool):
         js = """this.readLinesJson() """
         self.view.SV.page().runJavaScript(js)
         self.view.BE.page().runJavaScript(js)
-        core.QgsMessageLog.logMessage("webview lines refreshed", tag="go2streetview", level=core.Qgis.Info)
+        core.QgsMessageLog.logMessage("webview lines refreshed", tag="go3streetview", level=core.Qgis.Info)
 
     def noSVConnectionsPending(self, reply):
         print("finished loading SV")
@@ -1224,9 +1224,9 @@ class go2streetview(gui.QgsMapTool):
             # httpStatus = reply.attribute(QtNetwork.QNetworkRequest.HttpStatusCodeAttribute).toInt()
             httpStatus = reply.attribute(QtNetwork.QNetworkRequest.HttpStatusCodeAttribute)
             httpStatusMessage = reply.attribute(QtNetwork.QNetworkRequest.HttpReasonPhraseAttribute).toByteArray()
-            core.QgsMessageLog.logMessage("STREETVIEW FAILED REQUEST: {} {} {}".format(failedUrl, httpStatus, httpStatusMessage), tag="go2streetview", level=core.Qgis.Critical)
+            core.QgsMessageLog.logMessage("STREETVIEW FAILED REQUEST: {} {} {}".format(failedUrl, httpStatus, httpStatusMessage), tag="go3streetview", level=core.Qgis.Critical)
         else:
-            core.QgsMessageLog.logMessage("STREETVIEW OTHER CONNECTION ERROR: {}".format(reply.error()), tag="go2streetview", level=core.Qgis.Critical)
+            core.QgsMessageLog.logMessage("STREETVIEW OTHER CONNECTION ERROR: {}".format(reply.error()), tag="go3streetview", level=core.Qgis.Critical)
 
     def noGMConnectionsPending(self, reply):
         if reply.error() == QtNetwork.QNetworkReply.NoError:
@@ -1235,9 +1235,9 @@ class go2streetview(gui.QgsMapTool):
             failedUrl = reply.request().url()
             httpStatus = reply.attribute(QtNetwork.QNetworkRequest.HttpStatusCodeAttribute).toInt()
             httpStatusMessage = reply.attribute(QtNetwork.QNetworkRequest.HttpReasonPhraseAttribute).toByteArray()
-            core.QgsMessageLog.logMessage("GM FAILED REQUEST: {} {} {}".format(failedUrl, httpStatus, httpStatusMessage), tag="go2streetview", level=core.Qgis.Critical)
+            core.QgsMessageLog.logMessage("GM FAILED REQUEST: {} {} {}".format(failedUrl, httpStatus, httpStatusMessage), tag="go3streetview", level=core.Qgis.Critical)
         else:
-            core.QgsMessageLog.logMessage("GM OTHER CONNECTION ERROR: {}".format(reply.error()), tag="go2streetview", level=core.Qgis.Critical)
+            core.QgsMessageLog.logMessage("GM OTHER CONNECTION ERROR: {}".format(reply.error()), tag="go3streetview", level=core.Qgis.Critical)
 
     def projectReadAction(self):
         # remove current sketches
@@ -1256,10 +1256,10 @@ class go2streetview(gui.QgsMapTool):
 
     def loadFinishedAction(self, ok):
         if ok:
-            core.QgsMessageLog.logMessage("Finished loading", tag="go2streetview", level=core.Qgis.Info)
+            core.QgsMessageLog.logMessage("Finished loading", tag="go3streetview", level=core.Qgis.Info)
             pass
         else:
-            core.QgsMessageLog.logMessage("Failed loading", tag="go2streetview", level=core.Qgis.Critical)
+            core.QgsMessageLog.logMessage("Failed loading", tag="go3streetview", level=core.Qgis.Critical)
             pass
 
     def setupInspector(self):

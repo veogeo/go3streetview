@@ -1,5 +1,5 @@
 <RCC>
-    <qresource prefix="/plugins/go2streetview" >
+    <qresource prefix="/plugins/go3streetview" >
         <file>res/icoStreetview.png</file>
         <file>res/icoStreetview_gray.png</file>
         <file>res/expression.png</file>

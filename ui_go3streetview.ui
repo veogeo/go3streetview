@@ -547,7 +547,7 @@
         </property>
         <property name="icon">
          <iconset resource="resources.qrc">
-          <normaloff>:/plugins/go2streetview/res/icoGMaps.png</normaloff>:/plugins/go2streetview/res/icoGMaps.png</iconset>
+          <normaloff>:/plugins/go3streetview/res/icoGMaps.png</normaloff>:/plugins/go3streetview/res/icoGMaps.png</iconset>
         </property>
         <property name="iconSize">
          <size>
@@ -573,7 +573,7 @@
         </property>
         <property name="icon">
          <iconset resource="resources.qrc">
-          <normaloff>:/plugins/go2streetview/res/down.png</normaloff>:/plugins/go2streetview/res/down.png</iconset>
+          <normaloff>:/plugins/go3streetview/res/down.png</normaloff>:/plugins/go3streetview/res/down.png</iconset>
         </property>
         <property name="iconSize">
          <size>
