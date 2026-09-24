@@ -36,8 +36,6 @@ try:
 except ImportError:
     QVariant = None
 
-# ❌ ELIMINADO: from qgis.PyQt import QtWebEngineWidgets
-
 from qgis import core, utils, gui
 from qgis.utils import iface, qgsfunction, plugins
 from string import digits
@@ -59,47 +57,15 @@ from qgis.PyQt import sip
 import pathlib
 import datetime
 
-# ==============================
-# WebEngine COMPAT (Qt5 / Qt6)
-# ==============================
+# Use the Qt binding supplied by QGIS. Never fall back to a different Qt major.
+from qgis.PyQt.QtCore import QT_VERSION_STR
+from qgis.PyQt.QtWebEngineWidgets import QWebEngineView
+from qgis.PyQt.QtWebChannel import QWebChannel
 
-try:
-    # QGIS wrapper primero
-    from qgis.PyQt.QtWebEngineWidgets import QWebEngineView
-    from qgis.PyQt import QtWebEngineWidgets
-
-    try:
-        # Qt6
-        from qgis.PyQt.QtWebEngineCore import QWebEngineSettings, QWebEnginePage
-    except ImportError:
-        # Qt5
-        from qgis.PyQt.QtWebEngineWidgets import QWebEngineSettings, QWebEnginePage
-
-    try:
-        from qgis.PyQt.QtWebChannel import QWebChannel
-    except ImportError:
-        from PyQt6.QtWebChannel import QWebChannel
-
-except ImportError:
-    # Fallback PyQt directo
-    try:
-        # Qt6
-        from PyQt6.QtWebEngineWidgets import QWebEngineView, QWebEnginePage
-        from PyQt6.QtWebEngineCore import QWebEngineSettings
-        from PyQt6.QtWebChannel import QWebChannel
-        QT_VERSION = 6
-    except ImportError:
-        # Qt5
-        from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEnginePage, QWebEngineSettings
-        from PyQt5.QtWebChannel import QWebChannel
-        QT_VERSION = 5
+if int(QT_VERSION_STR.split('.')[0]) >= 6:
+    from qgis.PyQt.QtWebEngineCore import QWebEngineSettings
 else:
-    # Detectar versión desde QGIS
-    try:
-        from qgis.PyQt.QtCore import QT_VERSION_STR
-        QT_VERSION = int(QT_VERSION_STR.split('.')[0])
-    except Exception:
-        QT_VERSION = None
+    from qgis.PyQt.QtWebEngineWidgets import QWebEngineSettings
 
 
 DEBUG_PORT = '5588'
@@ -226,6 +192,7 @@ class go2streetview(gui.QgsMapTool):
     def __init__(self, iface):
 
         # Save reference to the QGIS interface
+        self._webengine_ready = False
         self.view = go2streetviewDialog()
         self.iface = iface
         # reference to the canvas
@@ -296,30 +263,11 @@ class go2streetview(gui.QgsMapTool):
 
         self.viewHeight = self.apdockwidget.size().height()
         self.viewWidth = self.apdockwidget.size().width()
-        self.snapshotOutput = snapShot(self)
-
-        self.channel = QWebChannel()
-        self.channel.registerObject('backend', self)
-
-        self.view.SV.page().setWebChannel(self.channel)
-        self.view.BE.page().setWebChannel(self.channel)
-
-        self.view.SV.settings().setAttribute(web_attr("JavascriptEnabled"), True)
-        self.view.SV.settings().setAttribute(web_attr("LocalContentCanAccessRemoteUrls"), True)
-        self.view.SV.settings().setAttribute(web_attr("ErrorPageEnabled"), True)
-        self.view.SV.settings().setAttribute(web_attr("PluginsEnabled"), True)
-
-        self.view.BE.settings().setAttribute(web_attr("JavascriptEnabled"), True)
-        self.view.BE.settings().setAttribute(web_attr("LocalContentCanAccessRemoteUrls"), True)
-        self.view.BE.settings().setAttribute(web_attr("ErrorPageEnabled"), True)
-        self.view.BE.settings().setAttribute(web_attr("PluginsEnabled"), True)
-
-        # self.view.SV.loadFinished.connect(self.handleLoaded)
-
         self.view.btnSwitchView.setIcon(QtGui.QIcon(os.path.join(self.dirPath, "res", "icoGMaps.png")))
 
         self.view.enter.connect(self.clickOn)
         self.view.closed.connect(self.closeDialog)
+        self.view.resized.connect(self.resizeStreetview)
         self.setButtonBarSignals()
         self.infoBoxManager = infobox(self)
         self.infoBoxManager.defined.connect(self.infoLayerDefinedAction)
@@ -367,6 +315,31 @@ class go2streetview(gui.QgsMapTool):
 
         core.QgsExpression.registerFunction(get_streetview_url)
         core.QgsExpression.registerFunction(get_streetview_pov)
+
+    def ensureWebEngine(self):
+        """Initialize Chromium only when a panorama is requested, not at startup."""
+        if self._webengine_ready:
+            return
+        self.view.initializeWebViews()
+        self.snapshotOutput = snapShot(self)
+
+        self.channel = QWebChannel()
+        self.channel.registerObject('backend', self)
+
+        self.view.SV.page().setWebChannel(self.channel)
+        self.view.BE.page().setWebChannel(self.channel)
+
+        self.view.SV.settings().setAttribute(web_attr("JavascriptEnabled"), True)
+        self.view.SV.settings().setAttribute(web_attr("LocalContentCanAccessRemoteUrls"), True)
+        self.view.SV.settings().setAttribute(web_attr("ErrorPageEnabled"), True)
+        self.view.SV.settings().setAttribute(web_attr("PluginsEnabled"), True)
+
+        self.view.BE.settings().setAttribute(web_attr("JavascriptEnabled"), True)
+        self.view.BE.settings().setAttribute(web_attr("LocalContentCanAccessRemoteUrls"), True)
+        self.view.BE.settings().setAttribute(web_attr("ErrorPageEnabled"), True)
+        self.view.BE.settings().setAttribute(web_attr("PluginsEnabled"), True)
+
+        self._webengine_ready = True
 
     def handleLoaded(self, ok):
         if ok:
@@ -524,7 +497,7 @@ class go2streetview(gui.QgsMapTool):
 
     def getNearestSVLocation(self, lon, lat):
         js = "this.getNearestSVLocation(%f,%f)" % (lon, lat)
-        if not self.pointWgs84:
+        if not self._webengine_ready or not self.pointWgs84:
             self.pointWgs84 = core.QgsPointXY(lon, lat)
             self.heading = 0
             self.StreetviewRun()
@@ -623,6 +596,8 @@ class go2streetview(gui.QgsMapTool):
         self.infoBoxManager.raise_()
 
     def infoLayerDefinedAction(self):
+        if not self._webengine_ready:
+            return
         if self.infoBoxManager.isEnabled():
             actualPoint = core.QgsPointXY(float(self.actualPOV['lon']), float(self.actualPOV['lat']))
             self.writeInfoBuffer(self.transformToCurrentSRS(actualPoint))
@@ -861,6 +836,8 @@ class go2streetview(gui.QgsMapTool):
                 self.enableControlShape(toInfoLayerProjection.transform(core.QgsPointXY(self.pointWgs84)))
 
     def resizeStreetview(self):
+        if not self._webengine_ready:
+            return
         print("resizeStreetview")
         # self.resizing = True
         self.resizeWidget()
@@ -1007,6 +984,7 @@ class go2streetview(gui.QgsMapTool):
             self.openSVDialog()
 
     def openSVDialog(self, show=True):
+        self.ensureWebEngine()
         # procedure for compiling streetview and gmaps url with the given location and heading
         self.heading = math.trunc(self.heading)
         if show:
@@ -1047,7 +1025,6 @@ class go2streetview(gui.QgsMapTool):
             self.explore()
 
     def explore(self):
-        self.view.resized.connect(self.resizeStreetview)
         gsvMessage = "Click on map and drag the cursor to the desired direction to display Google Street View"
         self.iface.mainWindow().statusBar().showMessage(gsvMessage)
         if not hasattr(self, "dumLayer"):

@@ -65,6 +65,24 @@ class go2streetviewDialog(QtWidgets.QDockWidget, MAIN_DIALOG_CLASS):
         super().__init__()
         self.setupUi(self)
 
+    def initializeWebViews(self):
+        """Replace Designer placeholders after QGIS startup, on first use."""
+        if getattr(self, "_webviews_created", False):
+            return
+        from qgis.PyQt.QtWebEngineWidgets import QWebEngineView
+
+        for name in ("SV", "BE"):
+            placeholder = getattr(self, name)
+            view = QWebEngineView(placeholder.parentWidget())
+            view.setObjectName(name)
+            view.setGeometry(placeholder.geometry())
+            view.hide()
+            placeholder.hide()
+            placeholder.deleteLater()
+            setattr(self, name, view)
+        self.buttonBar.raise_()
+        self._webviews_created = True
+
     def closeEvent(self, event):
         print("closed")
         self.closed_ev.emit(1)

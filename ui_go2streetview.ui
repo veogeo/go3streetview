@@ -587,7 +587,7 @@
     </item>
    </layout>
   </widget>
-  <widget class="QWebEngineView" name="SV">
+  <widget class="QWidget" name="SV">
    <property name="geometry">
     <rect>
      <x>0</x>
@@ -596,13 +596,8 @@
      <height>360</height>
     </rect>
    </property>
-   <property name="url">
-    <url>
-     <string>about:blank</string>
-    </url>
-   </property>
   </widget>
-  <widget class="QWebEngineView" name="BE">
+  <widget class="QWidget" name="BE">
    <property name="geometry">
     <rect>
      <x>0</x>
@@ -611,23 +606,11 @@
      <height>350</height>
     </rect>
    </property>
-   <property name="url">
-    <url>
-     <string>about:blank</string>
-    </url>
-   </property>
   </widget>
   <zorder>BE</zorder>
   <zorder>SV</zorder>
   <zorder>buttonBar</zorder>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>QWebEngineView</class>
-   <extends>QWidget</extends>
-   <header location="global">QtWebEngineWidgets/QWebEngineView</header>
-  </customwidget>
- </customwidgets>
  <resources>
   <include location="resources.qrc"/>
  </resources>
