@@ -15,7 +15,7 @@ qgisMaximumVersion=5.0
 description=a plugin for Google Street View© interaction within QGIS
 version=11.0.0
 author=César Benjamín (based on work of Enrico Ferreguti)
-email=cesarbenjamindotnet@gmail.com
+email=go3streetview@gmail.com
 
 # end of mandatory metadata
 
