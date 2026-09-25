@@ -37,7 +37,7 @@ except ImportError:
     QVariant = None
 
 from qgis import core, utils, gui
-from qgis.utils import iface, qgsfunction, plugins
+from qgis.utils import qgsfunction, plugins
 from string import digits
 from .go3streetviewDialog import go3streetviewDialog, dumWidget, snapshotLicenseDialog, infobox
 from .snapshot import snapShot
@@ -59,13 +59,18 @@ import datetime
 
 # Use the Qt binding supplied by QGIS. Never fall back to a different Qt major.
 from qgis.PyQt.QtCore import QT_VERSION_STR
-from qgis.PyQt.QtWebEngineWidgets import QWebEngineView
-from qgis.PyQt.QtWebChannel import QWebChannel
+WEBENGINE_IMPORT_ERROR = None
+try:
+    from qgis.PyQt.QtWebEngineWidgets import QWebEngineView
+    from qgis.PyQt.QtWebChannel import QWebChannel
+    if int(QT_VERSION_STR.split('.')[0]) >= 6:
+        from qgis.PyQt.QtWebEngineCore import QWebEngineSettings
+    else:
+        from qgis.PyQt.QtWebEngineWidgets import QWebEngineSettings
+except ImportError as error:
+    WEBENGINE_IMPORT_ERROR = str(error)
 
-if int(QT_VERSION_STR.split('.')[0]) >= 6:
-    from qgis.PyQt.QtWebEngineCore import QWebEngineSettings
-else:
-    from qgis.PyQt.QtWebEngineWidgets import QWebEngineSettings
+WEBENGINE_AVAILABLE = WEBENGINE_IMPORT_ERROR is None
 
 
 DEBUG_PORT = '5588'
@@ -125,6 +130,8 @@ def get_streetview_pov(value1, feature, parent):
     toP_wgs84 = sv.transformToWGS84(toP)
     # try:
     fromP_wgs84 = sv.getNearestSVLocation(toP_wgs84.x(), toP_wgs84.y())
+    if fromP_wgs84 is None:
+        return None
     fromP = sv.transformToCurrentSRS(fromP_wgs84)
     head = heading(fromP, toP)
     location = 'LINESTRING(%f %f %f,%f %f %f)' % (toP.x(), toP.y(), head, fromP.x(), fromP.y(), head)
@@ -318,8 +325,10 @@ class go3streetview(gui.QgsMapTool):
 
     def ensureWebEngine(self):
         """Initialize Chromium only when a panorama is requested, not at startup."""
+        if not WEBENGINE_AVAILABLE:
+            return False
         if self._webengine_ready:
-            return
+            return True
         self.view.initializeWebViews()
         self.snapshotOutput = snapShot(self)
 
@@ -340,6 +349,20 @@ class go3streetview(gui.QgsMapTool):
         self.view.BE.settings().setAttribute(web_attr("PluginsEnabled"), True)
 
         self._webengine_ready = True
+        return True
+
+    def notifyExternalBrowserMode(self):
+        if getattr(self, "_external_mode_notified", False):
+            return
+        self._external_mode_notified = True
+        self.iface.messageBar().pushWarning(
+            "go3streetview",
+            self.tr("QtWebEngine is unavailable in this QGIS installation. "
+                    "Street View will open in your external browser. "
+                    "Embedded panoramas, snapshots and digitizing are unavailable."))
+        core.QgsMessageLog.logMessage(
+            "QtWebEngine unavailable: {}".format(WEBENGINE_IMPORT_ERROR),
+            tag="go3streetview", level=core.Qgis.Warning)
 
     def handleLoaded(self, ok):
         if ok:
@@ -445,6 +468,9 @@ class go3streetview(gui.QgsMapTool):
         self.view.SV.page().runJavaScript(js)
 
     def showWebInspectorAction(self):
+        if not self.ensureWebEngine():
+            self.notifyExternalBrowserMode()
+            return
         self.inspector = QWebEngineView()
         self.inspector.setWindowTitle('Web Inspector')
         self.inspector.load(QtCore.QUrl(DEBUG_URL))
@@ -465,10 +491,9 @@ class go3streetview(gui.QgsMapTool):
             toc_root = core.QgsProject.instance().layerTreeRoot()
             toc_root.insertLayer(0, layer)
         else:
-            try:
-                core.QgsProject.instance().removeMapLayer(self.coverageLayerId)
-            except:
-                pass
+            layer_id = getattr(self, "coverageLayerId", None)
+            if layer_id and core.QgsProject.instance().mapLayer(layer_id) is not None:
+                core.QgsProject.instance().removeMapLayer(layer_id)
 
     def scanForCoverageLayer(self):
         """
@@ -484,11 +509,6 @@ class go3streetview(gui.QgsMapTool):
 
     def updateRotate(self):
         if self.checkFollow.isChecked():
-            try:
-                pass
-                # core.QgsProject.instance().removeMapLayer(self.coverageLayerId)
-            except:
-                pass
             self.setPosition()
 
     def mapRotationChanged(self, r):
@@ -496,6 +516,8 @@ class go3streetview(gui.QgsMapTool):
         return
 
     def getNearestSVLocation(self, lon, lat):
+        if not WEBENGINE_AVAILABLE:
+            return None
         js = "this.getNearestSVLocation(%f,%f)" % (lon, lat)
         if not self._webengine_ready or not self.pointWgs84:
             self.pointWgs84 = core.QgsPointXY(lon, lat)
@@ -631,40 +653,27 @@ class go3streetview(gui.QgsMapTool):
 
     def unload(self):
         self.disableControlShape()
-        try:
-            core.QgsProject.instance().removeMapLayer(self.coverageLayerId)
-        except:
-            pass
-        # Hide License
-        try:
-            self.license.hide()
-        except:
-            pass
-        # Remove the plugin menu item and icon and dock Widget
-        try:
-            self.iface.projectRead.disconnect(self.projectReadAction)
-        except:
-            pass
-        try:
-            self.canvas.rotationChanged.disconnect(self.mapRotationChanged)
-        except:
-            pass
-        try:
-            self.canvas.scaleChanged.disconnect(self.setPosition)
-        except:
-            pass
-        try:
-            self.position.reset()
-        except:
-            pass
-        try:
-            self.digitizePosition.reset()
-        except:
-            pass
-        try:
-            self.aperture.reset()
-        except:
-            pass
+        layer_id = getattr(self, "coverageLayerId", None)
+        if layer_id and core.QgsProject.instance().mapLayer(layer_id) is not None:
+            core.QgsProject.instance().removeMapLayer(layer_id)
+        if hasattr(self, "licenceDlg"):
+            self.licenceDlg.hide()
+        # Disconnect only our slots; Qt can report an already disconnected slot.
+        for signal, slot in (
+            (self.iface.projectRead, self.projectReadAction),
+            (self.canvas.rotationChanged, self.mapRotationChanged),
+            (self.canvas.scaleChanged, self.setPosition),
+        ):
+            try:
+                signal.disconnect(slot)
+            except (TypeError, RuntimeError) as error:
+                core.QgsMessageLog.logMessage(
+                    "Could not disconnect {}: {}".format(slot.__name__, error),
+                    tag="go3streetview", level=core.Qgis.Warning)
+        for name in ("position", "digitizePosition", "aperture"):
+            item = getattr(self, name, None)
+            if item is not None and not sip.isdeleted(item):
+                item.reset()
         self.iface.removePluginMenu("&go3streetview", self.StreetviewAction)
         self.iface.removeToolBarIcon(self.StreetviewAction)
         self.iface.removeDockWidget(self.apdockwidget)
@@ -677,7 +686,7 @@ class go3streetview(gui.QgsMapTool):
         print("catchJSevents", status)
         try:
             tmpPOV = json.JSONDecoder().decode(status)
-        except:
+        except (json.JSONDecodeError, TypeError):
             tmpPOV = None
         if tmpPOV:
             if tmpPOV["transport"] == "drag":
@@ -709,40 +718,28 @@ class go3streetview(gui.QgsMapTool):
 
     def setPosition(self, forcePosition=None):
         # if self.apdockwidget.widget().__dict__ == self.dumView.__dict__ or not self.apdockwidget.isVisible():
-        if not self.apdockwidget.isVisible():
+        if not self.apdockwidget.isVisible() or getattr(self, "_updating_position", False):
             return
 
         try:
             actualWGS84 = core.QgsPointXY(float(self.actualPOV['lon']), float(self.actualPOV['lat']))
-        except:
+        except (KeyError, TypeError, ValueError):
             return
 
         actualSRS = self.transformToCurrentSRS(actualWGS84)
         if self.checkFollow.isChecked():
+            # Prevent recursive scale callbacks without changing signal connections.
+            self._updating_position = True
             try:
-                self.canvas.rotationChanged.disconnect(self.mapRotationChanged)
-            except:
-                pass
-            try:
-                self.canvas.scaleChanged.disconnect(self.setPosition)
-            except:
-                pass
-            # self.canvas.setCenter(actualSRS)
-            if float(self.actualPOV['heading']) > 180:
-                rotAngle = 360-float(self.actualPOV['heading'])
-            else:
-                rotAngle = -float(self.actualPOV['heading'])
-            self.canvas.setRotation(rotAngle)
-            self.canvas.setCenter(actualSRS)
-            self.canvas.refresh()
-            try:
-                self.canvas.rotationChanged.connect(self.mapRotationChanged)
-            except:
-                pass
-            try:
-                self.canvas.scaleChanged.connect(self.setPosition)
-            except:
-                pass
+                if float(self.actualPOV['heading']) > 180:
+                    rotAngle = 360-float(self.actualPOV['heading'])
+                else:
+                    rotAngle = -float(self.actualPOV['heading'])
+                self.canvas.setRotation(rotAngle)
+                self.canvas.setCenter(actualSRS)
+                self.canvas.refresh()
+            finally:
+                self._updating_position = False
 
         self.position.reset()
         self.position = gui.QgsRubberBand(self.iface.mapCanvas(), core.QgsWkbTypes.PointGeometry)
@@ -821,10 +818,8 @@ class go3streetview(gui.QgsMapTool):
                 self.aperture.reset()
                 
             self.disableControlShape()
-            try:
+            if hasattr(self, "StreetviewAction") and not sip.isdeleted(self.StreetviewAction):
                 self.StreetviewAction.setIcon(QtGui.QIcon(os.path.join(os.path.dirname(__file__), 'res', 'icoStreetview_gray.png')))
-            except:
-                pass
 
         else:
             self.StreetviewAction.setEnabled(True)
@@ -841,11 +836,12 @@ class go3streetview(gui.QgsMapTool):
         print("resizeStreetview")
         # self.resizing = True
         self.resizeWidget()
-        try:
+        if self.pointWgs84 is None or self.actualPOV['lat'] == 0.0:
+            return
+        if not getattr(self, "_resize_refresh_pending", False):
             self.view.SV.loadFinished.connect(self.endRefreshWidget)
-            self.refreshWidget(self.pointWgs84.x(), self.pointWgs84.y())
-        except:
-            pass
+            self._resize_refresh_pending = True
+        self.refreshWidget(self.pointWgs84.x(), self.pointWgs84.y())
 
     def refreshWidget(self, new_lon, new_lat):
         if self.actualPOV['lat'] != 0.0:
@@ -857,8 +853,10 @@ class go3streetview(gui.QgsMapTool):
 
     def endRefreshWidget(self):
         print("endRefreshWidget")
-        self.view.SV.loadFinished.disconnect()
-        self.refreshWidget(self.pointWgs84.x(), self.pointWgs84.y())
+        self.view.SV.loadFinished.disconnect(self.endRefreshWidget)
+        self._resize_refresh_pending = False
+        if self.pointWgs84 is not None:
+            self.refreshWidget(self.pointWgs84.x(), self.pointWgs84.y())
 
     def clickOn(self):
         self.explore()
@@ -959,7 +957,7 @@ class go3streetview(gui.QgsMapTool):
             CTRLPressed = None
         self.pressed = None
         self.highlight.reset()
-        if not self.licenseAgree:
+        if WEBENGINE_AVAILABLE and not self.licenseAgree:
             self.licenceDlg.checkGoogle.stateChanged.connect(self.checkLicenseAction)
             self.licenceDlg.setWindowFlags(self.licenceDlg.windowFlags() | qt_window_flag("WindowStaysOnTopHint"))
             self.licenceDlg.show()
@@ -984,7 +982,10 @@ class go3streetview(gui.QgsMapTool):
             self.openSVDialog()
 
     def openSVDialog(self, show=True):
-        self.ensureWebEngine()
+        if not self.ensureWebEngine():
+            self.notifyExternalBrowserMode()
+            self.openInBrowserOnCTRLClick()
+            return
         # procedure for compiling streetview and gmaps url with the given location and heading
         self.heading = math.trunc(self.heading)
         if show:
@@ -1017,6 +1018,11 @@ class go3streetview(gui.QgsMapTool):
         self.view.SV.show()
 
     def StreetviewRun(self):
+        # External mode needs only the map tool, not a dock or an API key.
+        if not WEBENGINE_AVAILABLE:
+            self.notifyExternalBrowserMode()
+            self.explore()
+            return
         # called by click on toolbar icon
         if self.apdockwidget.isVisible():
             self.apdockwidget.hide()
@@ -1056,10 +1062,9 @@ class go3streetview(gui.QgsMapTool):
         self.controlShape.setToGeometry(viewBuffer, self.infoBoxManager.getInfolayer())
 
     def disableControlShape(self):
-        try:
-            self.controlShape.reset()
-        except:
-            pass
+        shape = getattr(self, "controlShape", None)
+        if shape is not None and not sip.isdeleted(shape):
+            shape.reset()
 
     def pointBuffer(self, p):
         infoLayer = self.infoBoxManager.getInfolayer()

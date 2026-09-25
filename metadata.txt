@@ -47,7 +47,7 @@ tags = google, street, view, streetview, bing, snapshot, nominating, overlay, ma
 homepage=https://github.com/veogeo/go3streetview
 tracker=https://github.com/veogeo/go3streetview/issues
 repository=https://github.com/veogeo/go3streetview
-icon=icoStreetview.png
+icon=res/icoStreetview.png
 # experimental flag
 experimental=False
 

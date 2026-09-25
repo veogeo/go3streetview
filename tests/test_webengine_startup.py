@@ -13,12 +13,12 @@ import xml.etree.ElementTree as ET
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def method(name, namespace=None):
-    tree = ast.parse((ROOT / 'go3streetview.py').read_text())
-    cls = next(n for n in tree.body if isinstance(n, ast.ClassDef) and n.name == 'go3streetview')
+def method(name, namespace=None, filename="go3streetview.py", classname="go3streetview"):
+    tree = ast.parse((ROOT / filename).read_text())
+    cls = next(n for n in tree.body if isinstance(n, ast.ClassDef) and n.name == classname)
     node = next(n for n in cls.body if isinstance(n, ast.FunctionDef) and n.name == name)
     scope = {} if namespace is None else namespace
-    exec(compile(ast.Module(body=[node], type_ignores=[]), str(ROOT / 'go3streetview.py'), 'exec'), scope)
+    exec(compile(ast.Module(body=[node], type_ignores=[]), str(ROOT / filename), 'exec'), scope)
     return scope[name]
 
 
@@ -38,6 +38,7 @@ class WebEngineStartupTests(unittest.TestCase):
         channel = Mock()
         ensure = method('ensureWebEngine', {
             'snapShot': snapshot, 'QWebChannel': channel, 'web_attr': lambda name: name,
+            'WEBENGINE_AVAILABLE': True,
         })
         ensure(plugin)
         ensure(plugin)

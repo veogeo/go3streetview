@@ -27,7 +27,6 @@ import json
 import os
 # import html.parser as HTMLParser
 import html
-import xml.sax.saxutils
 try:
     from . import resources_rc_qt6 as resources_rc
 except ImportError:
@@ -254,21 +253,21 @@ class infobox(QtWidgets.QDialog, INFOBOX_DIALOG_CLASS):
         if self.infoBoxIni["infoLayer"] in self.layerSet.keys():
             self.QEX = gui.QgsExpressionBuilderDialog(self.layerSet[self.infoBoxIni["infoLayer"]], "Insert expression", None)
             self.QEX.setExpressionText(self.infoboxHtml.textCursor().selectedText().strip('[%').strip('%]').strip())
-            if self.QEX.exec_():
+            if self.QEX.exec():
                 self.infoboxHtml.insertPlainText('[% {} %]'.format(self.QEX.expressionText()))
 
     def editInfoFieldAction(self):
         if self.infoBoxIni["infoLayer"] in self.layerSet.keys():
             self.QEX = gui.QgsExpressionBuilderDialog(self.layerSet[self.infoBoxIni["infoLayer"]], "Insert expression", None)
             self.QEX.setExpressionText(self.infoField.text().strip('[%').strip('%]').strip())
-            if self.QEX.exec_():
+            if self.QEX.exec():
                 self.infoField.setText('[% {} %]'.format(self.QEX.expressionText()))
 
     def editIconPathAction(self):
         if self.infoBoxIni["infoLayer"] in self.layerSet.keys():
             self.QEX = gui.QgsExpressionBuilderDialog(self.layerSet[self.infoBoxIni["infoLayer"]], "Insert expression", None)
             self.QEX.setExpressionText(self.iconPath.text().strip('[%').strip('%]').strip())
-            if self.QEX.exec_():
+            if self.QEX.exec():
                 self.iconPath.setText('[% {} %]'.format(self.QEX.expressionText()))
 
     def populateComboBox(self, combo, item_list, predef=None, sort=None, msg=""):
@@ -405,7 +404,7 @@ class infobox(QtWidgets.QDialog, INFOBOX_DIALOG_CLASS):
         self.infoBoxIni["distanceBuffer"] = self.distanceBuffer.text()
         self.infoBoxIni["infoBoxEnabled"] = self.enableInfoBoxCheckbox.isChecked()
         self.infoBoxIni["mapCommandsEnabled"] = self.mapCommandsCheck.isChecked()
-        self.infoBoxIni["infoBoxTemplate"] = xml.sax.saxutils.escape(self.infoboxHtml.toPlainText())
+        self.infoBoxIni["infoBoxTemplate"] = html.escape(self.infoboxHtml.toPlainText(), quote=False)
         core.QgsExpressionContextUtils.setProjectVariable(core.QgsProject.instance(), 'go2sv_infolayer_settings', json.dumps(self.infoBoxIni))
 
     def showEvent(self, event):
@@ -418,7 +417,7 @@ class infobox(QtWidgets.QDialog, INFOBOX_DIALOG_CLASS):
         context = core.QgsRectangle(point.x()-dist, point.y()-dist, point.x()+dist, point.y()+dist)
         try:
             return self.infoIndex.intersects(context)
-        except:
+        except AttributeError:
             return []
 
     def updateSpatialIndex(self):
@@ -441,8 +440,10 @@ class infobox(QtWidgets.QDialog, INFOBOX_DIALOG_CLASS):
         self.saveIni()
         try:
             self.layersCombo.activated.disconnect(self.layersComboAction)
-        except:
-            pass
+        except (TypeError, RuntimeError) as error:
+            core.QgsMessageLog.logMessage(
+                "Could not disconnect layer selection: {}".format(error),
+                tag="go3streetview", level=core.Qgis.Warning)
         self.updateSpatialIndex()
         self.hide()
         self.defined.emit()

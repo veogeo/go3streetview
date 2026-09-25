@@ -28,7 +28,8 @@ except ImportError:
     from . import resources_rc_qt5 as resources_rc
 
 import webbrowser
-from urllib.request import urlopen
+from http.client import HTTPSConnection
+from urllib.parse import urlencode
 import os
 import datetime
 import os.path
@@ -90,15 +91,14 @@ class snapShot:
 
     # method to save Google image to local file
     def saveImg(self, path=None):
-        urlimg = (
-                "https://maps.googleapis.com/maps/api/streetview"
-                "?size=640x400"
-                "&location=" + self.pov['lat'] + "," + self.pov['lon'] +
-                "&heading=" + self.pov['heading'] +
-                "&pitch=" + self.pov['pitch'] +
-                "&sensor=false"
-                "&key=" + self.parent.APIkey
-        )
+        query = urlencode({
+            "size": "640x400",
+            "location": self.pov['lat'] + "," + self.pov['lon'],
+            "heading": self.pov['heading'],
+            "pitch": self.pov['pitch'],
+            "sensor": "false",
+            "key": self.parent.APIkey,
+        })
 
         if path:
             self.file_name = path
@@ -119,16 +119,21 @@ class snapShot:
             level=core.Qgis.Info
         )
 
-        response = urlopen(urlimg)
-
-        block_size = 8192
-
-        with open(self.file_name, "wb") as f:
-            while True:
-                buffer = response.read(block_size)
-                if not buffer:
-                    break
-                f.write(buffer)
+        # A fixed HTTPS host prevents file/custom schemes and redirect bypasses.
+        connection = HTTPSConnection("maps.googleapis.com", timeout=30)
+        try:
+            connection.request("GET", "/maps/api/streetview?" + query)
+            response = connection.getresponse()
+            if response.status != 200:
+                raise OSError("Street View snapshot request failed (HTTP {})".format(response.status))
+            with open(self.file_name, "wb") as output:
+                while True:
+                    buffer = response.read(8192)
+                    if not buffer:
+                        break
+                    output.write(buffer)
+        finally:
+            connection.close()
 
     def getGeolocationInfo(self):
         self.pov = self.setCurrentPOV()
