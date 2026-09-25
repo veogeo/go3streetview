@@ -708,6 +708,10 @@ class go2streetview(gui.QgsMapTool):
                     self.SVLocationResponse = None  # core.QgsPointXY()
 
     def setPosition(self, forcePosition=None):
+        # Dock visibility and canvas signals can arrive before the first panorama.
+        # SV and BE are plain QWidget placeholders until ensureWebEngine completes.
+        if not self._webengine_ready:
+            return
         # if self.apdockwidget.widget().__dict__ == self.dumView.__dict__ or not self.apdockwidget.isVisible():
         if not self.apdockwidget.isVisible():
             return
