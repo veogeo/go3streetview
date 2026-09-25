@@ -13,7 +13,7 @@ name=go3streetview
 qgisMinimumVersion=3.2
 qgisMaximumVersion=5.0
 description=a plugin for Google Street View© interaction within QGIS
-version=11.0.0
+version=11.0.1
 author=César Benjamín (based on work of Enrico Ferreguti)
 email=go3streetview@gmail.com
 
@@ -22,7 +22,9 @@ email=go3streetview@gmail.com
 # Optional items:
 
 # Uncomment the following line and add your changelog entries:
-changelog =v11.0.0
+changelog =v11.0.1
+  Hotfix about AttributeError: 'QWidget' object has no attribute 'page'
+  v11.0.0
   Fork based on go2streetview with many fixes to upgrade compatibility with Qt6 and QGIS 4.x
   v8.4
   snapshots issues fixes
