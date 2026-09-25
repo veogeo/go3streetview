@@ -467,8 +467,10 @@ class go3streetview(gui.QgsMapTool):
         else:
             try:
                 core.QgsProject.instance().removeMapLayer(self.coverageLayerId)
-            except:
-                pass
+            except (AttributeError, TypeError, RuntimeError) as error:
+                core.QgsMessageLog.logMessage(
+                    "Plugin cleanup/update failed: {}".format(error),
+                    tag="go3streetview", level=core.Qgis.Warning)
 
     def scanForCoverageLayer(self):
         """
@@ -484,11 +486,6 @@ class go3streetview(gui.QgsMapTool):
 
     def updateRotate(self):
         if self.checkFollow.isChecked():
-            try:
-                pass
-                # core.QgsProject.instance().removeMapLayer(self.coverageLayerId)
-            except:
-                pass
             self.setPosition()
 
     def mapRotationChanged(self, r):
@@ -633,38 +630,54 @@ class go3streetview(gui.QgsMapTool):
         self.disableControlShape()
         try:
             core.QgsProject.instance().removeMapLayer(self.coverageLayerId)
-        except:
-            pass
+        except (AttributeError, TypeError, RuntimeError) as error:
+            core.QgsMessageLog.logMessage(
+                "Plugin cleanup/update failed: {}".format(error),
+                tag="go3streetview", level=core.Qgis.Warning)
         # Hide License
         try:
-            self.license.hide()
-        except:
-            pass
+            self.licenceDlg.hide()
+        except (AttributeError, TypeError, RuntimeError) as error:
+            core.QgsMessageLog.logMessage(
+                "Plugin cleanup/update failed: {}".format(error),
+                tag="go3streetview", level=core.Qgis.Warning)
         # Remove the plugin menu item and icon and dock Widget
         try:
             self.iface.projectRead.disconnect(self.projectReadAction)
-        except:
-            pass
+        except (AttributeError, TypeError, RuntimeError) as error:
+            core.QgsMessageLog.logMessage(
+                "Plugin cleanup/update failed: {}".format(error),
+                tag="go3streetview", level=core.Qgis.Warning)
         try:
             self.canvas.rotationChanged.disconnect(self.mapRotationChanged)
-        except:
-            pass
+        except (AttributeError, TypeError, RuntimeError) as error:
+            core.QgsMessageLog.logMessage(
+                "Plugin cleanup/update failed: {}".format(error),
+                tag="go3streetview", level=core.Qgis.Warning)
         try:
             self.canvas.scaleChanged.disconnect(self.setPosition)
-        except:
-            pass
+        except (AttributeError, TypeError, RuntimeError) as error:
+            core.QgsMessageLog.logMessage(
+                "Plugin cleanup/update failed: {}".format(error),
+                tag="go3streetview", level=core.Qgis.Warning)
         try:
             self.position.reset()
-        except:
-            pass
+        except (AttributeError, TypeError, RuntimeError) as error:
+            core.QgsMessageLog.logMessage(
+                "Plugin cleanup/update failed: {}".format(error),
+                tag="go3streetview", level=core.Qgis.Warning)
         try:
             self.digitizePosition.reset()
-        except:
-            pass
+        except (AttributeError, TypeError, RuntimeError) as error:
+            core.QgsMessageLog.logMessage(
+                "Plugin cleanup/update failed: {}".format(error),
+                tag="go3streetview", level=core.Qgis.Warning)
         try:
             self.aperture.reset()
-        except:
-            pass
+        except (AttributeError, TypeError, RuntimeError) as error:
+            core.QgsMessageLog.logMessage(
+                "Plugin cleanup/update failed: {}".format(error),
+                tag="go3streetview", level=core.Qgis.Warning)
         self.iface.removePluginMenu("&go3streetview", self.StreetviewAction)
         self.iface.removeToolBarIcon(self.StreetviewAction)
         self.iface.removeDockWidget(self.apdockwidget)
@@ -677,7 +690,8 @@ class go3streetview(gui.QgsMapTool):
         print("catchJSevents", status)
         try:
             tmpPOV = json.JSONDecoder().decode(status)
-        except:
+        except (ValueError, TypeError) as error:
+            core.QgsMessageLog.logMessage("Invalid Street View event: {}".format(error), tag="go3streetview", level=core.Qgis.Warning)
             tmpPOV = None
         if tmpPOV:
             if tmpPOV["transport"] == "drag":
@@ -708,6 +722,8 @@ class go3streetview(gui.QgsMapTool):
                     self.SVLocationResponse = None  # core.QgsPointXY()
 
     def setPosition(self, forcePosition=None):
+        if getattr(self, "_updating_position", False):
+            return
         # Dock visibility and canvas signals can arrive before the first panorama.
         # SV and BE are plain QWidget placeholders until ensureWebEngine completes.
         if not self._webengine_ready:
@@ -718,35 +734,22 @@ class go3streetview(gui.QgsMapTool):
 
         try:
             actualWGS84 = core.QgsPointXY(float(self.actualPOV['lon']), float(self.actualPOV['lat']))
-        except:
+        except (KeyError, ValueError, TypeError) as error:
+            core.QgsMessageLog.logMessage("Invalid panorama coordinates: {}".format(error), tag="go3streetview", level=core.Qgis.Warning)
             return
 
         actualSRS = self.transformToCurrentSRS(actualWGS84)
         if self.checkFollow.isChecked():
+            # Prevent synchronous canvas signals from recursively updating the POV.
+            self._updating_position = True
             try:
-                self.canvas.rotationChanged.disconnect(self.mapRotationChanged)
-            except:
-                pass
-            try:
-                self.canvas.scaleChanged.disconnect(self.setPosition)
-            except:
-                pass
-            # self.canvas.setCenter(actualSRS)
-            if float(self.actualPOV['heading']) > 180:
-                rotAngle = 360-float(self.actualPOV['heading'])
-            else:
-                rotAngle = -float(self.actualPOV['heading'])
-            self.canvas.setRotation(rotAngle)
-            self.canvas.setCenter(actualSRS)
-            self.canvas.refresh()
-            try:
-                self.canvas.rotationChanged.connect(self.mapRotationChanged)
-            except:
-                pass
-            try:
-                self.canvas.scaleChanged.connect(self.setPosition)
-            except:
-                pass
+                heading = float(self.actualPOV['heading'])
+                rotAngle = 360 - heading if heading > 180 else -heading
+                self.canvas.setRotation(rotAngle)
+                self.canvas.setCenter(actualSRS)
+                self.canvas.refresh()
+            finally:
+                self._updating_position = False
 
         self.position.reset()
         self.position = gui.QgsRubberBand(self.iface.mapCanvas(), core.QgsWkbTypes.PointGeometry)
@@ -827,8 +830,10 @@ class go3streetview(gui.QgsMapTool):
             self.disableControlShape()
             try:
                 self.StreetviewAction.setIcon(QtGui.QIcon(os.path.join(os.path.dirname(__file__), 'res', 'icoStreetview_gray.png')))
-            except:
-                pass
+            except (AttributeError, TypeError, RuntimeError) as error:
+                core.QgsMessageLog.logMessage(
+                    "Plugin cleanup/update failed: {}".format(error),
+                    tag="go3streetview", level=core.Qgis.Warning)
 
         else:
             self.StreetviewAction.setEnabled(True)
@@ -842,14 +847,13 @@ class go3streetview(gui.QgsMapTool):
     def resizeStreetview(self):
         if not self._webengine_ready:
             return
-        print("resizeStreetview")
-        # self.resizing = True
         self.resizeWidget()
-        try:
+        if self.pointWgs84 is None or self.actualPOV['lat'] == 0.0:
+            return
+        if not getattr(self, "_resize_refresh_pending", False):
             self.view.SV.loadFinished.connect(self.endRefreshWidget)
-            self.refreshWidget(self.pointWgs84.x(), self.pointWgs84.y())
-        except:
-            pass
+            self._resize_refresh_pending = True
+        self.refreshWidget(self.pointWgs84.x(), self.pointWgs84.y())
 
     def refreshWidget(self, new_lon, new_lat):
         if self.actualPOV['lat'] != 0.0:
@@ -861,7 +865,8 @@ class go3streetview(gui.QgsMapTool):
 
     def endRefreshWidget(self):
         print("endRefreshWidget")
-        self.view.SV.loadFinished.disconnect()
+        self.view.SV.loadFinished.disconnect(self.endRefreshWidget)
+        self._resize_refresh_pending = False
         self.refreshWidget(self.pointWgs84.x(), self.pointWgs84.y())
 
     def clickOn(self):
@@ -1060,10 +1065,8 @@ class go3streetview(gui.QgsMapTool):
         self.controlShape.setToGeometry(viewBuffer, self.infoBoxManager.getInfolayer())
 
     def disableControlShape(self):
-        try:
+        if getattr(self, "controlShape", None) is not None:
             self.controlShape.reset()
-        except:
-            pass
 
     def pointBuffer(self, p):
         infoLayer = self.infoBoxManager.getInfolayer()

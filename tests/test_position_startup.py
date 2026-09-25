@@ -9,11 +9,11 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def plugin_method(name, scope=None):
-    tree = ast.parse((ROOT / 'go2streetview.py').read_text())
-    cls = next(n for n in tree.body if isinstance(n, ast.ClassDef) and n.name == 'go2streetview')
+    tree = ast.parse((ROOT / 'go3streetview.py').read_text())
+    cls = next(n for n in tree.body if isinstance(n, ast.ClassDef) and n.name == 'go3streetview')
     node = next(n for n in cls.body if isinstance(n, ast.FunctionDef) and n.name == name)
     namespace = {} if scope is None else dict(scope)
-    exec(compile(ast.Module(body=[node], type_ignores=[]), str(ROOT / 'go2streetview.py'), 'exec'), namespace)
+    exec(compile(ast.Module(body=[node], type_ignores=[]), str(ROOT / 'go3streetview.py'), 'exec'), namespace)
     return namespace[name]
 
 
@@ -34,7 +34,7 @@ class PositionStartupTests(unittest.TestCase):
         plugin.setPosition = lambda: plugin_method('setPosition')(plugin)
         visibility = plugin_method('apdockChangeVisibility', {
             'QtGui': SimpleNamespace(QIcon=lambda path: path),
-            'os': __import__('os'), '__file__': str(ROOT / 'go2streetview.py'),
+            'os': __import__('os'), '__file__': str(ROOT / 'go3streetview.py'),
         })
         plugin.apdockwidget.show.side_effect = lambda: visibility(plugin, True)
         plugin_method('StreetviewRun')(plugin)

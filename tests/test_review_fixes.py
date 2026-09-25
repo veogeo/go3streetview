@@ -80,6 +80,28 @@ class ReviewFixTests(unittest.TestCase):
         plugin = SimpleNamespace(_updating_position=True, apdockwidget=Mock())
         method('setPosition')(plugin)
 
+    def test_follow_update_restores_recursion_guard_after_canvas_failure(self):
+        tree = ast.parse((ROOT / 'go3streetview.py').read_text())
+        cls = next(n for n in tree.body if isinstance(n, ast.ClassDef) and n.name == 'go3streetview')
+        position = next(n for n in cls.body if isinstance(n, ast.FunctionDef) and n.name == 'setPosition')
+        follow = next(n for n in position.body if isinstance(n, ast.If)
+                      and ast.unparse(n.test) == 'self.checkFollow.isChecked()')
+        plugin = SimpleNamespace(actualPOV={'heading': 90}, canvas=Mock())
+        plugin.canvas.setRotation.side_effect = RuntimeError('canvas unavailable')
+        with self.assertRaisesRegex(RuntimeError, 'canvas unavailable'):
+            exec(compile(ast.Module(body=follow.body, type_ignores=[]), '<follow>', 'exec'),
+                 {'self': plugin, 'actualSRS': object()})
+        self.assertFalse(plugin._updating_position)
+
+    def test_unload_logs_disconnect_failure_and_continues_cleanup(self):
+        plugin = Mock()
+        plugin.iface.projectRead.disconnect.side_effect = TypeError('not connected')
+        qgis_core = Mock()
+        method('unload', {'core': qgis_core})(plugin)
+        plugin.licenceDlg.hide.assert_called_once_with()
+        qgis_core.QgsMessageLog.logMessage.assert_called_once()
+        plugin.iface.removeDockWidget.assert_called_once_with(plugin.apdockwidget)
+
     def test_runtime_has_no_silently_ignored_exceptions(self):
         for filename in ('go3streetview.py', 'go3streetviewDialog.py', 'snapshot.py'):
             tree = ast.parse((ROOT / filename).read_text())
