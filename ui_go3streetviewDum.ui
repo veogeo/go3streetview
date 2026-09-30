@@ -38,7 +38,7 @@
       <string/>
      </property>
      <property name="pixmap">
-      <pixmap resource="resources.qrc">:/plugins/go3streetview/res/icoStreetview.png</pixmap>
+      <pixmap>:/plugins/go3streetview/res/icoStreetview.png</pixmap>
      </property>
      <property name="scaledContents">
       <bool>false</bool>
@@ -100,8 +100,7 @@
    </item>
   </layout>
  </widget>
- <resources>
-  <include location="resources.qrc"/>
- </resources>
+ <!-- Resources are registered by go3streetviewDialog before loading this form. -->
+ <resources/>
  <connections/>
 </ui>

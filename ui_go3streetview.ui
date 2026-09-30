@@ -546,7 +546,7 @@
          <string>Sw</string>
         </property>
         <property name="icon">
-         <iconset resource="resources.qrc">
+         <iconset>
           <normaloff>:/plugins/go3streetview/res/icoGMaps.png</normaloff>:/plugins/go3streetview/res/icoGMaps.png</iconset>
         </property>
         <property name="iconSize">
@@ -572,7 +572,7 @@
          <string>Br</string>
         </property>
         <property name="icon">
-         <iconset resource="resources.qrc">
+         <iconset>
           <normaloff>:/plugins/go3streetview/res/down.png</normaloff>:/plugins/go3streetview/res/down.png</iconset>
         </property>
         <property name="iconSize">
@@ -611,8 +611,7 @@
   <zorder>SV</zorder>
   <zorder>buttonBar</zorder>
  </widget>
- <resources>
-  <include location="resources.qrc"/>
- </resources>
+ <!-- Resources are registered by go3streetviewDialog before loading this form. -->
+ <resources/>
  <connections/>
 </ui>

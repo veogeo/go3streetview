@@ -12,7 +12,9 @@ def plugin_method(name, scope=None):
     tree = ast.parse((ROOT / 'go3streetview.py').read_text())
     cls = next(n for n in tree.body if isinstance(n, ast.ClassDef) and n.name == 'go3streetview')
     node = next(n for n in cls.body if isinstance(n, ast.FunctionDef) and n.name == name)
-    namespace = {} if scope is None else dict(scope)
+    namespace = {'WEBENGINE_AVAILABLE': True}
+    if scope is not None:
+        namespace.update(scope)
     exec(compile(ast.Module(body=[node], type_ignores=[]), str(ROOT / 'go3streetview.py'), 'exec'), namespace)
     return namespace[name]
 

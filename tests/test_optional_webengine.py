@@ -9,6 +9,29 @@ from test_webengine_startup import ROOT, method
 
 
 class OptionalWebEngineTests(unittest.TestCase):
+    def test_native_crash_workaround_targets_running_windows_qt(self):
+        tree = ast.parse((ROOT / 'go3streetview.py').read_text())
+        guard = next(n for n in tree.body if isinstance(n, ast.If)
+                     and 'sys.platform' in ast.unparse(n.test))
+        for platform, version, expected in (
+            ('win32', '6.11.1', False), ('win32', '5.15.2', True),
+            ('linux', '6.11.1', True), ('darwin', '6.11.1', True),
+        ):
+            with self.subTest(platform=platform, version=version):
+                scope = {'sys': SimpleNamespace(platform=platform),
+                         'qVersion': lambda: version, 'WEBENGINE_AVAILABLE': True}
+                exec(compile(ast.Module(body=[guard], type_ignores=[]), '<platform>', 'exec'), scope)
+                self.assertEqual(scope['WEBENGINE_AVAILABLE'], expected)
+
+    def test_external_url_preserves_coordinates_and_heading(self):
+        browser = Mock()
+        point = SimpleNamespace(x=lambda: 12.5, y=lambda: 41.9)
+        method('openInBrowserOnCTRLClick', {'webbrowser': browser})(
+            SimpleNamespace(pointWgs84=point, heading=123))
+        url = browser.open.call_args.args[0]
+        self.assertIn('cbll=41.9,12.5', url)
+        self.assertIn('cbp=12,123,0,0,0', url)
+
     def test_missing_module_is_recorded_without_aborting_import(self):
         tree = ast.parse((ROOT / 'go3streetview.py').read_text())
         start = next(i for i, node in enumerate(tree.body)

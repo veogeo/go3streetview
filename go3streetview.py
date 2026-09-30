@@ -37,7 +37,7 @@ except ImportError:
     QVariant = None
 
 from qgis import core, utils, gui
-from qgis.utils import iface, qgsfunction, plugins
+from qgis.utils import qgsfunction, plugins
 from string import digits
 from .go3streetviewDialog import go3streetviewDialog, dumWidget, snapshotLicenseDialog, infobox
 from .snapshot import snapShot
@@ -48,6 +48,7 @@ except ImportError:
     from . import resources_rc_qt5 as resources_rc
 import webbrowser
 import tempfile
+import sys
 import os
 import math
 import time
@@ -59,13 +60,24 @@ import datetime
 
 # Use the Qt binding supplied by QGIS. Never fall back to a different Qt major.
 from qgis.PyQt.QtCore import QT_VERSION_STR
-from qgis.PyQt.QtWebEngineWidgets import QWebEngineView
-from qgis.PyQt.QtWebChannel import QWebChannel
+WEBENGINE_IMPORT_ERROR = ""
+WEBENGINE_AVAILABLE = True
+try:
+    from qgis.PyQt.QtWebEngineWidgets import QWebEngineView
+    from qgis.PyQt.QtWebChannel import QWebChannel
+    if int(QT_VERSION_STR.split('.')[0]) >= 6:
+        from qgis.PyQt.QtWebEngineCore import QWebEngineSettings
+    else:
+        from qgis.PyQt.QtWebEngineWidgets import QWebEngineSettings
+except ImportError as error:
+    WEBENGINE_AVAILABLE = False
+    WEBENGINE_IMPORT_ERROR = str(error)
 
-if int(QT_VERSION_STR.split('.')[0]) >= 6:
-    from qgis.PyQt.QtWebEngineCore import QWebEngineSettings
-else:
-    from qgis.PyQt.QtWebEngineWidgets import QWebEngineSettings
+# Reported native Chromium initialization failure; Python cannot catch it.
+# Use the running Qt version, which may differ from the compile-time version.
+if sys.platform == "win32" and qVersion() == "6.11.1":
+    WEBENGINE_AVAILABLE = False
+    WEBENGINE_IMPORT_ERROR = "Embedded browser disabled on Windows with Qt 6.11.1 after a native crash report."
 
 
 DEBUG_PORT = '5588'
@@ -318,8 +330,10 @@ class go3streetview(gui.QgsMapTool):
 
     def ensureWebEngine(self):
         """Initialize Chromium only when a panorama is requested, not at startup."""
+        if not WEBENGINE_AVAILABLE:
+            return False
         if self._webengine_ready:
-            return
+            return True
         self.view.initializeWebViews()
         self.snapshotOutput = snapShot(self)
 
@@ -340,6 +354,17 @@ class go3streetview(gui.QgsMapTool):
         self.view.BE.settings().setAttribute(web_attr("PluginsEnabled"), True)
 
         self._webengine_ready = True
+        return True
+
+    def notifyExternalBrowserMode(self):
+        if getattr(self, "_external_browser_notified", False):
+            return
+        self._external_browser_notified = True
+        self.iface.messageBar().pushWarning(
+            "go3streetview",
+            self.tr("Street View will open in your default browser. Embedded snapshots and digitizing are unavailable.")
+        )
+        core.QgsMessageLog.logMessage(WEBENGINE_IMPORT_ERROR, tag="go3streetview", level=core.Qgis.Warning)
 
     def handleLoaded(self, ok):
         if ok:
@@ -445,6 +470,9 @@ class go3streetview(gui.QgsMapTool):
         self.view.SV.page().runJavaScript(js)
 
     def showWebInspectorAction(self):
+        if not self.ensureWebEngine():
+            self.notifyExternalBrowserMode()
+            return
         self.inspector = QWebEngineView()
         self.inspector.setWindowTitle('Web Inspector')
         self.inspector.load(QtCore.QUrl(DEBUG_URL))
@@ -493,6 +521,8 @@ class go3streetview(gui.QgsMapTool):
         return
 
     def getNearestSVLocation(self, lon, lat):
+        if not WEBENGINE_AVAILABLE:
+            return None
         js = "this.getNearestSVLocation(%f,%f)" % (lon, lat)
         if not self._webengine_ready or not self.pointWgs84:
             self.pointWgs84 = core.QgsPointXY(lon, lat)
@@ -968,7 +998,7 @@ class go3streetview(gui.QgsMapTool):
             CTRLPressed = None
         self.pressed = None
         self.highlight.reset()
-        if not self.licenseAgree:
+        if WEBENGINE_AVAILABLE and not self.licenseAgree:
             self.licenceDlg.checkGoogle.stateChanged.connect(self.checkLicenseAction)
             self.licenceDlg.setWindowFlags(self.licenceDlg.windowFlags() | qt_window_flag("WindowStaysOnTopHint"))
             self.licenceDlg.show()
@@ -993,7 +1023,11 @@ class go3streetview(gui.QgsMapTool):
             self.openSVDialog()
 
     def openSVDialog(self, show=True):
-        self.ensureWebEngine()
+        if not self.ensureWebEngine():
+            self.notifyExternalBrowserMode()
+            if show:
+                self.openInBrowserOnCTRLClick()
+            return
         # procedure for compiling streetview and gmaps url with the given location and heading
         self.heading = math.trunc(self.heading)
         if show:
@@ -1027,6 +1061,10 @@ class go3streetview(gui.QgsMapTool):
 
     def StreetviewRun(self):
         # called by click on toolbar icon
+        if not WEBENGINE_AVAILABLE:
+            self.notifyExternalBrowserMode()
+            self.explore()
+            return
         if self.apdockwidget.isVisible():
             self.apdockwidget.hide()
         else:

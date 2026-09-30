@@ -80,7 +80,7 @@
         <string>...</string>
        </property>
        <property name="icon">
-        <iconset resource="resources.qrc">
+        <iconset>
          <normaloff>:/plugins/go3streetview/res/expression.png</normaloff>:/plugins/go3streetview/res/expression.png</iconset>
        </property>
        <property name="iconSize">
@@ -142,7 +142,7 @@
         <string>...</string>
        </property>
        <property name="icon">
-        <iconset resource="resources.qrc">
+        <iconset>
          <normaloff>:/plugins/go3streetview/res/expression.png</normaloff>:/plugins/go3streetview/res/expression.png</iconset>
        </property>
        <property name="iconSize">
@@ -196,7 +196,7 @@
           <string>...</string>
          </property>
          <property name="icon">
-          <iconset resource="resources.qrc">
+          <iconset>
            <normaloff>:/plugins/go3streetview/res/expression.png</normaloff>:/plugins/go3streetview/res/expression.png</iconset>
          </property>
          <property name="iconSize">
@@ -322,8 +322,7 @@
    </item>
   </layout>
  </widget>
- <resources>
-  <include location="resources.qrc"/>
- </resources>
+ <!-- Resources are registered by go3streetviewDialog before loading this form. -->
+ <resources/>
  <connections/>
 </ui>
