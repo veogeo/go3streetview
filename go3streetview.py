@@ -887,7 +887,7 @@ class go3streetview(gui.QgsMapTool):
 
     def refreshWidget(self, new_lon, new_lat):
         if self.actualPOV['lat'] != 0.0:
-            self.gswDialogUrl = os.path.join(pathlib.Path(self.dirPath).as_uri(), 'res', 'g2sv.html?lat=' + str(
+            self.gswDialogUrl = os.path.join(pathlib.Path(self.dirPath).as_uri(), 'res', 'g3sv.html?lat=' + str(
                 new_lat) + "&long=" + str(new_lon) + "&width=" + str(
                 self.viewWidth) + "&height=" + str(self.viewHeight) + "&heading=" + str(
                 self.heading) + "&APIkey=" + self.APIkey)
@@ -1041,13 +1041,13 @@ class go3streetview(gui.QgsMapTool):
         self.viewHeight = self.view.size().height()
         self.viewWidth = self.view.size().width()
 
-        self.gswDialogUrl = os.path.join(pathlib.Path(self.dirPath).as_uri(), 'res', 'g2sv.html?lat=' + str(
+        self.gswDialogUrl = os.path.join(pathlib.Path(self.dirPath).as_uri(), 'res', 'g3sv.html?lat=' + str(
             self.pointWgs84.y()) + "&long=" + str(self.pointWgs84.x()) + "&width=" + str(
             self.viewWidth) + "&height=" + str(self.viewHeight) + "&heading=" + str(
             self.heading) + "&APIkey=" + self.APIkey)
 
         self.headingGM = math.trunc(round(self.heading / 90) * 90)
-        self.bbeUrl = os.path.join(pathlib.Path(self.dirPath).as_uri(), "res", "g2gm.html?lat=" + str(self.pointWgs84.y()) + "&long=" + str(
+        self.bbeUrl = os.path.join(pathlib.Path(self.dirPath).as_uri(), "res", "g3gm.html?lat=" + str(self.pointWgs84.y()) + "&long=" + str(
             self.pointWgs84.x()) + "&width=" + str(self.viewWidth) + "&height=" + str(
             self.viewHeight) + "&zoom=19&heading=" + str(self.headingGM) + "&APIkey=" + self.APIkey)
 
